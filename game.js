@@ -4,14 +4,12 @@ class Game {
         this.ctx = this.canvas.getContext('2d');
 
         // Full screen setup
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-
-        this.width = this.canvas.width;
-        this.height = this.canvas.height;
 
         this.score = 0;
         this.timeLeft = 90;
+        this.baseWidth = 800; // Base resolution for scaling
+        this.baseHeight = 600;
+        this.scale = 1;
         this.isPlaying = false;
         this.items = [];
         this.flyingItems = []; // Items currently animating to cauldron
@@ -60,6 +58,8 @@ class Game {
             animTime: 0,
             active: true
         };
+
+        this.resize();
 
         // Recipes Database
         this.recipes = [
@@ -123,6 +123,9 @@ class Game {
         // Audio State
         this.isSoundEnabled = true;
         this.loggedInUser = null;
+        this.apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : 'Sua_URL_do_Backend_Aqui'; // Substitua pelo link do seubackend (Render, Railway, etc)
 
         // Audio Setup
         this.music = new Audio();
@@ -161,12 +164,22 @@ class Game {
         this.logoutBtn.addEventListener('click', () => this.logout());
 
         if (this.soundBtn) {
-            this.soundBtn.addEventListener('click', (e) => {
+            const toggleWrapper = (e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 this.toggleSound();
-            });
+            };
+            this.soundBtn.addEventListener('click', toggleWrapper);
+            this.soundBtn.addEventListener('touchstart', toggleWrapper, { passive: false });
         }
         this.canvas.addEventListener('mousedown', (e) => this.handleClick(e));
+        this.canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevent scrolling
+            const touch = e.touches[0];
+            this.handleClick(touch);
+        }, { passive: false });
+
+        window.addEventListener('resize', () => this.resize());
 
         // Game Loop
         this.loop = this.loop.bind(this);
@@ -209,6 +222,35 @@ class Game {
         this.updateSoundButtonUI();
     }
 
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.width = this.canvas.width;
+        this.height = this.canvas.height;
+
+        // Calculate scale based on screen size
+        this.scale = Math.min(this.width / this.baseWidth, this.height / this.baseHeight);
+        if (this.width < 600) this.scale = Math.max(this.scale, 0.6); // Don't shrink too much on mobile
+
+        // Update positions of fixed elements
+        this.cauldron.x = this.width - (150 * this.scale);
+        this.cauldron.y = this.height - (120 * this.scale);
+        this.cauldron.width = 120 * this.scale;
+        this.cauldron.height = 100 * this.scale;
+
+        this.customer.x = 20 * this.scale;
+        this.customer.y = this.height - (150 * this.scale);
+        this.customer.size = 100 * this.scale;
+
+        // Reposition items if they are out of bounds after resize
+        if (this.isPlaying) {
+            this.items.forEach(item => {
+                item.x = Math.max(50, Math.min(this.width - 50, item.x));
+                item.y = Math.max(150, Math.min(this.height - 150, item.y));
+            });
+        }
+    }
+
     updateSoundButtonUI() {
         this.soundBtn.textContent = this.isSoundEnabled ? "🔊 Som: ON" : "🔇 Som: OFF";
         this.soundBtn.style.opacity = this.isSoundEnabled ? "1" : "0.5";
@@ -224,7 +266,7 @@ class Game {
         }
 
         try {
-            const response = await fetch(`http://localhost:3000/api/${type}`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/${type}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -304,7 +346,7 @@ class Game {
     async saveScore(name, score) {
         console.log(`Tentando salvar score para ${name}: ${score}`);
         try {
-            const response = await fetch('http://localhost:3000/api/scores', {
+            const response = await fetch(`${this.apiBaseUrl}/api/scores`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -396,7 +438,7 @@ class Game {
         return {
             x: 200 + Math.random() * (this.width - 500),
             y: 200 + Math.random() * (this.height - 400),
-            size: 40,
+            size: 40 * this.scale,
             emoji: emoji,
             isTarget: isTarget,
             rotation: (Math.random() - 0.5) * 0.5,
@@ -697,9 +739,13 @@ class Game {
 
         console.log(`Click: ${clickX}, ${clickY}`); // For debugging
 
-        // Check if clicked on wizard
-        const wizardDist = Math.hypot(clickX - (this.customer.x + 50), clickY - (this.customer.y + 50));
-        if (wizardDist < 80) {
+        // Check if clicked on wizard (scaled hit area)
+        const wizardCenterX = this.customer.x + (50 * this.scale);
+        const wizardCenterY = this.customer.y + (50 * this.scale);
+        const wizardDist = Math.hypot(clickX - wizardCenterX, clickY - wizardCenterY);
+        const wizardHitRadius = 80 * this.scale;
+
+        if (wizardDist < wizardHitRadius) {
             // Wizard clicked! Say random phrase
             const randomPhrase = this.wizardPhrases[Math.floor(Math.random() * this.wizardPhrases.length)];
             this.setWizardSpeech(randomPhrase, 2500);
@@ -711,8 +757,9 @@ class Game {
             const item = this.items[i];
             const dist = Math.hypot(clickX - item.x, clickY - item.y);
 
-            // Increased hit area slightly (from 30 to item.size) to be more forgiving
-            if (dist < item.size) {
+            // Increased hit area for mobile (more forgiving)
+            const hitRadius = item.size * (this.width < 768 ? 1.5 : 1);
+            if (dist < hitRadius) {
                 if (item.isTarget) {
                     // Start Animation
                     this.flyingItems.push({

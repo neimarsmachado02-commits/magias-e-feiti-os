@@ -173,3 +173,75 @@ p {
 #target-item {
     min-width: 300px;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+
+    h1,
+    h2 {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+
+    p {
+        font-size: 1.1em;
+        margin-bottom: 20px;
+        text-align: center;
+        padding: 0 15px;
+    }
+
+    .magic-btn {
+        padding: 10px 25px;
+        font-size: 1.2em;
+    }
+
+    .auth-form {
+        width: 85%;
+        padding: 15px;
+    }
+
+    #hud {
+        padding: 10px;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .hud-item {
+        font-size: 1em;
+        padding: 5px;
+        flex: 1 1 auto;
+        min-height: 35px;
+    }
+
+    #target-item {
+        min-width: 100%;
+        order: -1;
+        margin-bottom: 5px;
+    }
+
+    .wizard-decor {
+        font-size: 3em;
+    }
+}
+
+@media (max-width: 480px) {
+
+    h1,
+    h2 {
+        font-size: 1.5em;
+    }
+
+    .magic-input {
+        padding: 10px;
+        font-size: 1em;
+    }
+
+    .hud-item {
+        font-size: 0.85em;
+    }
+
+    #logout-btn {
+        padding: 1px 4px !important;
+        font-size: 0.5em !important;
+    }
+}
