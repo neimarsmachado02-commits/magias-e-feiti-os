@@ -129,7 +129,7 @@ class Game {
             window.location.hostname.startsWith('10.') ||
             window.location.hostname.startsWith('172.');
 
-        this.apiBaseUrl = isLocal ? `http://${window.location.hostname}:3000` : 'Sua_URL_do_Backend_Aqui';
+        this.apiBaseUrl = isLocal ? `http://${window.location.hostname}:3000` : 'https://magias-e-feiti-os.onrender.com';
 
         // Audio Setup
         this.music = new Audio();
