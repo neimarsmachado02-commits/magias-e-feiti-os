@@ -123,9 +123,13 @@ class Game {
         // Audio State
         this.isSoundEnabled = true;
         this.loggedInUser = null;
-        this.apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:3000'
-            : 'Sua_URL_do_Backend_Aqui'; // Substitua pelo link do seubackend (Render, Railway, etc)
+        const isLocal = window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            window.location.hostname.startsWith('192.168.') ||
+            window.location.hostname.startsWith('10.') ||
+            window.location.hostname.startsWith('172.');
+
+        this.apiBaseUrl = isLocal ? `http://${window.location.hostname}:3000` : 'Sua_URL_do_Backend_Aqui';
 
         // Audio Setup
         this.music = new Audio();
