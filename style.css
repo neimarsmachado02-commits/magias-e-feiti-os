@@ -1,25 +1,30 @@
 :root {
-    --primary-color: #4a2c4a;
-    --secondary-color: #d4af37;
-    /* Gold */
-    --bg-color: #1a1a1a;
-    --text-color: #f5e6c8;
-    /* Parchment */
+    --primary-color: #6d3b6d;
+    --secondary-color: #ffd700;
+    /* Vibrant Gold */
+    --accent-color: #8a2be2;
+    /* Mystical Violet */
+    --bg-dark: #0d0d0d;
+    --glass-bg: rgba(26, 26, 26, 0.75);
+    --glass-border: rgba(255, 215, 0, 0.3);
     --font-main: 'MedievalSharp', cursive;
     --font-headers: 'Cinzel', serif;
 }
 
+html,
 body {
     margin: 0;
     padding: 0;
+    min-height: 100%;
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: var(--font-main);
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
+    align-items: flex-start;
+    /* Mudado de center para o scroll começar do topo */
+    overflow-x: hidden;
+    overflow-y: auto;
     background-image: radial-gradient(circle, #2a1a2a 0%, #0d0d0d 100%);
 }
 
@@ -30,7 +35,7 @@ body {
     box-shadow: none;
     border: none;
     border-radius: 0;
-    overflow: hidden;
+    overflow-y: auto;
 }
 
 canvas {
@@ -47,9 +52,13 @@ canvas {
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-end;
+    /* Move elementos para baixo */
     align-items: center;
     background: rgba(0, 0, 0, 0.7);
+    padding-bottom: 10vh;
+    /* Garante que não fiquem colados no final */
+    box-sizing: border-box;
     transition: opacity 0.3s ease;
 }
 
@@ -80,17 +89,19 @@ p {
 }
 
 .magic-btn {
-    padding: 15px 40px;
-    font-size: 1.5em;
+    padding: 18px 45px;
+    font-size: 1.4em;
     font-family: var(--font-headers);
-    background: linear-gradient(45deg, #4a2c4a, #6d3b6d);
+    background: linear-gradient(135deg, var(--primary-color), #8a2be2);
     color: var(--secondary-color);
     border: 2px solid var(--secondary-color);
-    border-radius: 5px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s;
-    text-shadow: 1px 1px 2px black;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4), 0 0 20px rgba(138, 43, 226, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .magic-btn:hover {
@@ -99,15 +110,23 @@ p {
     background: linear-gradient(45deg, #6d3b6d, #4a2c6d);
 }
 
+.magic-btn:active {
+    transform: scale(0.92);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    width: 300px;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 10px;
-    border: 1px solid var(--secondary-color);
+    gap: 25px;
+    width: 320px;
+    padding: 35px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .magic-input {
@@ -144,14 +163,19 @@ p {
 }
 
 #hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 20px;
+    padding: 10px 20px;
     box-sizing: border-box;
-    background: none;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
     pointer-events: none;
     height: auto;
+    z-index: 10;
 }
 
 .hud-item {
@@ -211,6 +235,18 @@ p {
         padding: 5px;
         flex: 1 1 auto;
         min-height: 35px;
+    }
+
+    /* Adicionado para permitir arrastar a tela */
+    .screen {
+        min-height: 115vh !important;
+        padding-bottom: 15vh !important;
+        justify-content: flex-end;
+    }
+
+    #game-container {
+        height: auto;
+        min-height: 115vh;
     }
 
     #target-item {

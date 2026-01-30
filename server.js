@@ -9,6 +9,7 @@ const port = 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static('.')); // Serve os arquivos HTML, CSS, JS da pasta atual
 
 // Database Setup
 const dbPath = path.join(__dirname, 'database.db');
@@ -95,6 +96,6 @@ app.get('/api/scores', (req, res) => {
     });
 });
 
-app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Servidor rodando em todos os IPs na porta ${port}`);
 });

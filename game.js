@@ -4,6 +4,13 @@ class Game {
         this.ctx = this.canvas.getContext('2d');
 
         // Full screen setup
+        this.toggleFullScreen = () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.warn(`Erro ao tentar entrar em tela cheia: ${err.message}`);
+                });
+            }
+        };
 
         this.score = 0;
         this.timeLeft = 90;
@@ -68,7 +75,17 @@ class Game {
             { name: "Pizza Mágica", ingredients: ["🍞", "🍅", "🧀", "🍄"], icon: "🍕" },
             { name: "Bolo de Chocolate", ingredients: ["🍫", "🥚", "🥛", "🌾"], icon: "🎂" },
             { name: "Poção da Verdade", ingredients: ["🧪", "🌿", "💧", "🌙"], icon: "✨" },
-            { name: "Hambúrguer", ingredients: ["🍞", "🥩", "🧀", "🥬"], icon: "🍔" }
+            { name: "Hambúrguer", ingredients: ["🍞", "🥩", "🧀", "🥬"], icon: "🍔" },
+            { name: "Poção de Invisibilidade", ingredients: ["🧪", "🌫️", "👻", "🔮"], icon: "👤" },
+            { name: "Elixir da Juventude", ingredients: ["💎", "🌸", "💧", "✨"], icon: "🧪" },
+            { name: "Banquete Real", ingredients: ["🍗", "🍷", "🥖", "🍇"], icon: "👑" },
+            { name: "Doce de Dragão", ingredients: ["🌶️", "🍬", "🍭", "🔥"], icon: "🐲" },
+            { name: "Sorvete Galático", ingredients: ["🍦", "🌌", "🌠", "🔮"], icon: "🌌" },
+            { name: "Sushi Encantado", ingredients: ["🍣", "🍙", "🦐", "🥢"], icon: "🍱" },
+            { name: "Café de Fada", ingredients: ["☕", "🦋", "🍯", "🥐"], icon: "🧚" },
+            { name: "Poção Explosiva", ingredients: ["🧪", "💣", "🎇", "💥"], icon: "🎆" },
+            { name: "Omelete de Fênix", ingredients: ["🥚", "🔥", "🌿", "🌶️"], icon: "🔥" },
+            { name: "Suco de Meteoro", ingredients: ["☄️", "🍊", "🍋", "🧊"], icon: "🍹" }
         ];
 
         this.allIngredients = [
@@ -76,7 +93,11 @@ class Game {
             "🍞", "🧀", "🍄", "🍫", "🥚", "🥛", "🌾",
             "🧪", "🌿", "💧", "🌙", "🥩", "🍗", "🍎",
             "🍌", "🍇", "🍉", "🍒", "🍓", "🍍", "🍆",
-            "🌽", "🌶️", "🥒", "🥐", "🥖", "🥨", "🥞"
+            "🌽", "🌶️", "🥒", "🥐", "🥖", "🥨", "🥞",
+            "🌫️", "👻", "🔮", "💎", "🌸", "✨", "🍷",
+            "🍬", "🍭", "🔥", "🌌", "🌠", "🍣", "🍙",
+            "🦐", "🥢", "☕", "🦋", "🍯", "💣", "🎇",
+            "💥", "☄️", "🍊", "🍋", "🧊"
         ];
 
         // Wizard random phrases
@@ -129,7 +150,7 @@ class Game {
             window.location.hostname.startsWith('10.') ||
             window.location.hostname.startsWith('172.');
 
-        this.apiBaseUrl = isLocal ? `http://${window.location.hostname}:3000` : 'https://magias-e-feiti-os.onrender.com';
+        this.apiBaseUrl = isLocal ? `http://${window.location.hostname}:3000` : `http://${window.location.hostname}:3000`; // Always use current hostname/IP
 
         // Audio Setup
         this.music = new Audio();
@@ -152,6 +173,7 @@ class Game {
         // Event Listeners
         this.startBtn.addEventListener('click', () => {
             console.log("Botão Iniciar clicado - tentando tocar música.");
+            this.toggleFullScreen();
             this.music.play()
                 .then(() => console.log("Música iniciada via Iniciar!"))
                 .catch(e => console.warn("Música ainda bloqueada, use o botão de volume."));
@@ -163,8 +185,14 @@ class Game {
         });
 
         // NEW: Auth Listeners
-        this.loginBtn.addEventListener('click', () => this.handleAuth('login'));
-        this.registerBtn.addEventListener('click', () => this.handleAuth('register'));
+        this.loginBtn.addEventListener('click', () => {
+            this.toggleFullScreen();
+            this.handleAuth('login');
+        });
+        this.registerBtn.addEventListener('click', () => {
+            this.toggleFullScreen();
+            this.handleAuth('register');
+        });
         this.logoutBtn.addEventListener('click', () => this.logout());
 
         if (this.soundBtn) {
@@ -178,10 +206,10 @@ class Game {
         }
         this.canvas.addEventListener('mousedown', (e) => this.handleClick(e));
         this.canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Prevent scrolling
+            // e.preventDefault(); // Removido para permitir "mexer" na tela (scroll/zoom)
             const touch = e.touches[0];
             this.handleClick(touch);
-        }, { passive: false });
+        }, { passive: true }); // Alterado para passive: true
 
         window.addEventListener('resize', () => this.resize());
 
@@ -234,7 +262,11 @@ class Game {
 
         // Calculate scale based on screen size
         this.scale = Math.min(this.width / this.baseWidth, this.height / this.baseHeight);
-        if (this.width < 600) this.scale = Math.max(this.scale, 0.6); // Don't shrink too much on mobile
+
+        // Refined mobile scaling
+        if (this.width < 768) {
+            this.scale = Math.max(this.scale * 0.85, 0.5);
+        }
 
         // Update positions of fixed elements
         this.cauldron.x = this.width - (150 * this.scale);
@@ -397,7 +429,7 @@ class Game {
     generateItemsForRecipe(recipe) {
         const items = [];
         const needed = [...recipe.ingredients];
-        const minDistance = 50; // Much closer items
+        const minDistance = 160; // Aumentado drasticamente para garantir separação total no mobile
 
         // Helper to check distance
         const isTooClose = (x, y) => {
@@ -440,9 +472,9 @@ class Game {
 
     createItem(emoji, isTarget) {
         return {
-            x: 200 + Math.random() * (this.width - 500),
-            y: 200 + Math.random() * (this.height - 400),
-            size: 40 * this.scale,
+            x: 100 + Math.random() * (this.width - 200),
+            y: (this.height * 0.6) + Math.random() * (this.height * 0.3), // Foca na parte de baixo (60% a 90% da altura)
+            size: 45 * this.scale, // Ligeiramente maior para facilitar o toque
             emoji: emoji,
             isTarget: isTarget,
             rotation: (Math.random() - 0.5) * 0.5,
@@ -761,8 +793,8 @@ class Game {
             const item = this.items[i];
             const dist = Math.hypot(clickX - item.x, clickY - item.y);
 
-            // Increased hit area for mobile (more forgiving)
-            const hitRadius = item.size * (this.width < 768 ? 1.5 : 1);
+            // Increased hit area for mobile (very forgiving)
+            const hitRadius = item.size * (this.width < 768 ? 2.5 : 1.2);
             if (dist < hitRadius) {
                 if (item.isTarget) {
                     // Start Animation
