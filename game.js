@@ -143,9 +143,14 @@ class Game {
         this.bgImage.src = 'assets/background.png';
 
         // Bindings
+        this.coverScreen = document.getElementById('cover-screen');
+        this.enterGameBtn = document.getElementById('enter-game-btn');
         this.startBtn = document.getElementById('start-btn');
         this.restartBtn = document.getElementById('restart-btn');
+        this.tutorialBtn = document.getElementById('tutorial-btn');
+        this.closeTutorialBtn = document.getElementById('close-tutorial-btn');
         this.startScreen = document.getElementById('start-screen');
+        this.tutorialScreen = document.getElementById('tutorial-screen');
         this.gameOverScreen = document.getElementById('game-over-screen');
         this.hud = document.getElementById('hud');
 
@@ -168,10 +173,26 @@ class Game {
         // Audio State
         this.isSoundEnabled = true;
         this.loggedInUser = null;
+        this.playerAvatar = "🧙‍♂️"; // Avatar padrão
+
+        // Interactive Tutorial
+        this.tutorialActive = false;
+        this.tutorialStep = 0;
+        this.interactiveTutorial = document.getElementById('interactive-tutorial');
+        this.tutorialBox = document.querySelector('.tutorial-box');
+        this.tutorialPointer = document.querySelector('.tutorial-pointer');
+        this.tutorialTitle = document.getElementById('tutorial-step-title');
+        this.tutorialText = document.getElementById('tutorial-step-text');
+        this.tutorialNext = document.getElementById('tutorial-next');
+        this.tutorialSkip = document.getElementById('tutorial-skip');
+
         const isProduction = window.location.hostname.includes('netlify.app');
         this.apiBaseUrl = isProduction
             ? 'https://magias-e-feiti-os.onrender.com'
             : `http://${window.location.hostname}:3000`;
+
+        // Setup Avatar Selector
+        this.setupAvatarSelector();
 
         // Audio Setup
         this.music = new Audio();
@@ -192,6 +213,12 @@ class Game {
         };
 
         // Event Listeners
+        this.enterGameBtn.addEventListener('click', () => {
+            this.coverScreen.classList.add('hidden');
+            this.authScreen.classList.remove('hidden');
+            this.authScreen.classList.add('active');
+        });
+
         this.startBtn.addEventListener('click', () => {
             console.log("Botão Iniciar clicado - tentando tocar música.");
             this.toggleFullScreen();
@@ -216,6 +243,12 @@ class Game {
         });
         this.logoutBtn.addEventListener('click', () => this.logout());
 
+        this.tutorialBtn.addEventListener('click', () => this.showTutorial());
+        this.closeTutorialBtn.addEventListener('click', () => this.hideTutorial());
+
+        this.tutorialNext.addEventListener('click', () => this.nextTutorialStep());
+        this.tutorialSkip.addEventListener('click', () => this.skipTutorial());
+
         if (this.soundBtn) {
             const toggleWrapper = (e) => {
                 e.preventDefault();
@@ -239,28 +272,179 @@ class Game {
         console.log("Magic Kitchen: Iniciado com sucesso!");
     }
 
+    setupAvatarSelector() {
+        const avatarOptions = document.querySelectorAll('.avatar-option');
+        const selectedAvatarInput = document.getElementById('selected-avatar');
+
+        // Carregar avatar salvo
+        const savedAvatar = localStorage.getItem('playerAvatar');
+        if (savedAvatar) {
+            this.playerAvatar = savedAvatar;
+            selectedAvatarInput.value = savedAvatar;
+        }
+
+        // Marcar avatar selecionado
+        avatarOptions.forEach(option => {
+            if (option.dataset.avatar === this.playerAvatar) {
+                option.classList.add('selected');
+            }
+
+            option.addEventListener('click', () => {
+                // Remover seleção anterior
+                avatarOptions.forEach(opt => opt.classList.remove('selected'));
+
+                // Adicionar nova seleção
+                option.classList.add('selected');
+                this.playerAvatar = option.dataset.avatar;
+                selectedAvatarInput.value = option.dataset.avatar;
+
+                // Salvar no localStorage
+                localStorage.setItem('playerAvatar', this.playerAvatar);
+
+                // Atualizar exibição imediata
+                this.updateAvatarDisplay();
+            });
+        });
+
+        this.updateAvatarDisplay();
+    }
+
+    updateAvatarDisplay() {
+        const playerAvatarElement = document.getElementById('player-avatar');
+        if (playerAvatarElement) {
+            playerAvatarElement.textContent = this.playerAvatar;
+        }
+    }
+
+    showTutorial() {
+        this.startScreen.classList.add('hidden');
+        this.tutorialScreen.classList.remove('hidden');
+    }
+
+    hideTutorial() {
+        this.tutorialScreen.classList.add('hidden');
+        this.startScreen.classList.remove('hidden');
+    }
+
     start() {
         this.score = 0;
         this.timeLeft = 180; // More time as requested
-        this.isPlaying = true;
-        this.startNewRecipe();
+        this.isGameOver = false;
+        this.foundIngredients = [];
 
         this.startScreen.classList.add('hidden');
-        this.startScreen.classList.remove('active');
         this.gameOverScreen.classList.add('hidden');
-        this.gameOverScreen.classList.remove('active');
         this.hud.classList.remove('hidden');
-        this.hud.classList.add('active');
-        console.log("Jogo começando...");
-
-        // Force UI update
-        this.updateUI();
 
         this.lastTime = performance.now();
 
         // Music attempt handled in the click listener above
 
         requestAnimationFrame(this.loop);
+
+        // Verificar se é a primeira vez jogando
+        const hasPlayedBefore = localStorage.getItem('hasPlayedBefore');
+        if (!hasPlayedBefore) {
+            setTimeout(() => this.startInteractiveTutorial(), 1000);
+            localStorage.setItem('hasPlayedBefore', 'true');
+        }
+    }
+
+    startInteractiveTutorial() {
+        this.tutorialActive = true;
+        this.tutorialStep = 0;
+        this.interactiveTutorial.classList.remove('hidden');
+        this.showTutorialStep();
+    }
+
+    showTutorialStep() {
+        const steps = [
+            {
+                title: "Bem-vindo à Cozinha Mágica! 🧙‍♂️",
+                text: "Vou te ensinar a jogar! Clique em 'Próximo' para continuar.",
+                position: { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
+                pointer: null
+            },
+            {
+                title: "Veja a Receita 📜",
+                text: "Aqui embaixo você vê qual receita precisa fazer. Procure os ingredientes que aparecem aqui!",
+                position: { bottom: '100px', left: '50%', transform: 'translateX(-50%)' },
+                pointer: '#target-item'
+            },
+            {
+                title: "Tempo e Pontos ⏱️",
+                text: "No topo da tela você vê seu tempo restante e pontuação. Não deixe o tempo acabar!",
+                position: { top: '80px', left: '50%', transform: 'translateX(-50%)' },
+                pointer: '#hud'
+            },
+            {
+                title: "Clique nos Ingredientes Certos ✅",
+                text: "Toque ou clique nos ingredientes corretos que aparecem na tela. Cada acerto dá +50 pontos e +5 segundos!",
+                position: { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
+                pointer: null
+            },
+            {
+                title: "Evite os Errados ❌",
+                text: "Cuidado! Clicar no ingrediente errado tira 5 segundos do seu tempo. O mago vai reclamar!",
+                position: { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
+                pointer: null
+            },
+            {
+                title: "Pronto para Começar! 🎮",
+                text: "Complete receitas para ganhar bônus de 200 pontos. Boa sorte, aprendiz!",
+                position: { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
+                pointer: null
+            }
+        ];
+
+        const step = steps[this.tutorialStep];
+        if (!step) {
+            this.skipTutorial();
+            return;
+        }
+
+        this.tutorialTitle.textContent = step.title;
+        this.tutorialText.textContent = step.text;
+
+        // Posicionar a caixa do tutorial
+        Object.assign(this.tutorialBox.style, step.position);
+
+        // Mostrar/esconder ponteiro
+        if (step.pointer) {
+            const element = document.querySelector(step.pointer);
+            if (element) {
+                const rect = element.getBoundingClientRect();
+                this.tutorialPointer.style.display = 'block';
+                this.tutorialPointer.style.left = `${rect.left + rect.width / 2 - 30}px`;
+                this.tutorialPointer.style.top = `${rect.top + rect.height / 2 - 30}px`;
+                element.classList.add('tutorial-highlight');
+            }
+        } else {
+            this.tutorialPointer.style.display = 'none';
+            document.querySelectorAll('.tutorial-highlight').forEach(el => {
+                el.classList.remove('tutorial-highlight');
+            });
+        }
+
+        // Atualizar botão
+        if (this.tutorialStep === steps.length - 1) {
+            this.tutorialNext.textContent = 'Começar! 🪄';
+        } else {
+            this.tutorialNext.textContent = 'Próximo →';
+        }
+    }
+
+    nextTutorialStep() {
+        this.tutorialStep++;
+        this.showTutorialStep();
+    }
+
+    skipTutorial() {
+        this.tutorialActive = false;
+        this.interactiveTutorial.classList.add('hidden');
+        document.querySelectorAll('.tutorial-highlight').forEach(el => {
+            el.classList.remove('tutorial-highlight');
+        });
     }
 
     toggleSound() {
@@ -334,6 +518,7 @@ class Game {
                 this.loggedInUser = data.username;
                 this.welcomeUser.textContent = data.username;
                 this.hudUser.textContent = data.username;
+                this.updateAvatarDisplay(); // Atualizar avatar no HUD
                 this.authScreen.classList.add('hidden');
                 this.authScreen.classList.remove('active');
                 this.startScreen.classList.remove('hidden');
@@ -496,13 +681,34 @@ class Game {
         // Detectar modo paisagem
         const isLandscape = this.width > this.height;
 
-        return {
-            x: 100 + Math.random() * (this.width - 200),
+        // Zona de exclusão ao redor do mago (canto inferior esquerdo)
+        const wizardZone = {
+            x: this.customer.x,
+            y: this.customer.y,
+            radius: 200 // Raio de exclusão ao redor do mago
+        };
+
+        let x, y;
+        let attempts = 0;
+        const maxAttempts = 50;
+
+        do {
+            x = 100 + Math.random() * (this.width - 200);
             // Em paisagem, usar mais área vertical; em retrato, focar na metade inferior
-            y: isLandscape
+            y = isLandscape
                 ? (this.height * 0.3) + Math.random() * (this.height * 0.5) // 30% a 80% da altura
-                : (this.height * 0.5) + Math.random() * (this.height * 0.35), // 50% a 85% da altura
-            size: 45 * this.scale, // Ligeiramente maior para facilitar o toque
+                : (this.height * 0.5) + Math.random() * (this.height * 0.35); // 50% a 85% da altura
+
+            attempts++;
+        } while (
+            Math.hypot(x - wizardZone.x, y - wizardZone.y) < wizardZone.radius &&
+            attempts < maxAttempts
+        );
+
+        return {
+            x: x,
+            y: y,
+            size: 35 * this.scale, // Reduzido para itens menores
             emoji: emoji,
             isTarget: isTarget,
             rotation: (Math.random() - 0.5) * 0.5,

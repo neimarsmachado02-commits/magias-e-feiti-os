@@ -379,3 +379,420 @@ p {
         min-height: 100vh;
     }
 }
+
+/* Tutorial Styles */
+.tutorial-content {
+    max-width: 600px;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.tutorial-step {
+    background: rgba(13, 13, 13, 0.7);
+    backdrop-filter: blur(8px);
+    border: 2px solid var(--secondary-color);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tutorial-step:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+}
+
+.tutorial-icon {
+    font-size: 3em;
+    margin-bottom: 10px;
+    animation: float 3s ease-in-out infinite;
+}
+
+.tutorial-step h3 {
+    font-family: var(--font-headers);
+    color: var(--secondary-color);
+    font-size: 1.5em;
+    margin: 10px 0;
+}
+
+.tutorial-step p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin: 0;
+}
+
+#tutorial-screen h2 {
+    margin-bottom: 10px;
+}
+
+/* Responsividade do Tutorial */
+@media (max-width: 768px) {
+    .tutorial-content {
+        max-height: 50vh;
+        gap: 10px;
+    }
+
+    .tutorial-step {
+        padding: 15px;
+    }
+
+    .tutorial-icon {
+        font-size: 2.5em;
+    }
+
+    .tutorial-step h3 {
+        font-size: 1.2em;
+    }
+
+    .tutorial-step p {
+        font-size: 1em;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .tutorial-content {
+        max-height: 40vh;
+        gap: 8px;
+    }
+
+    .tutorial-step {
+        padding: 10px;
+    }
+
+    .tutorial-icon {
+        font-size: 2em;
+    }
+
+    #tutorial-screen h2 {
+        font-size: 1.5em;
+        margin-bottom: 5px;
+    }
+}
+
+/* Avatar Selector Styles */
+.avatar-selector {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.avatar-option {
+    font-size: 2.5em;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+}
+
+.avatar-option:hover {
+    transform: scale(1.1);
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+.avatar-option.selected {
+    border: 3px solid var(--secondary-color);
+    background: rgba(138, 43, 226, 0.3);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+    transform: scale(1.05);
+}
+
+#player-avatar {
+    display: inline-block;
+    animation: float 3s ease-in-out infinite;
+}
+
+@media (max-width: 480px) {
+    .avatar-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+
+    .avatar-option {
+        font-size: 2em;
+        padding: 8px;
+    }
+}
+
+/* Cover Screen Styles */
+#cover-screen {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url('assets/cover.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.cover-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 20px;
+}
+
+.cover-title {
+    font-size: 5em;
+    font-family: var(--font-headers);
+    color: var(--secondary-color);
+    text-shadow: 0 0 30px rgba(255, 215, 0, 1),
+        0 0 60px rgba(138, 43, 226, 0.8),
+        4px 4px 10px #000;
+    margin-bottom: 20px;
+    animation: glow 2s ease-in-out infinite alternate, float 4s ease-in-out infinite;
+}
+
+.cover-subtitle {
+    font-size: 2em;
+    font-family: var(--font-headers);
+    color: #fff;
+    text-shadow: 2px 2px 8px #000, 0 0 20px rgba(255, 215, 0, 0.5);
+    margin-bottom: 50px;
+    animation: fadeIn 2s ease-in;
+}
+
+.cover-btn {
+    font-size: 2em;
+    padding: 20px 50px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsividade da Capa */
+@media (max-width: 768px) {
+    .cover-title {
+        font-size: 3em;
+    }
+
+    .cover-subtitle {
+        font-size: 1.3em;
+    }
+
+    .cover-btn {
+        font-size: 1.5em;
+        padding: 15px 35px;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .cover-title {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+    }
+
+    .cover-subtitle {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+    }
+
+    .cover-btn {
+        font-size: 1.3em;
+        padding: 12px 30px;
+    }
+}
+
+/* Interactive Tutorial Styles */
+#interactive-tutorial {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+#interactive-tutorial:not(.hidden) {
+    pointer-events: all;
+}
+
+.tutorial-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    animation: fadeIn 0.3s ease-in;
+}
+
+.tutorial-box {
+    position: absolute;
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(13, 13, 13, 0.95));
+    backdrop-filter: blur(10px);
+    border: 3px solid var(--secondary-color);
+    border-radius: 20px;
+    padding: 25px;
+    max-width: 400px;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), 0 10px 30px rgba(0, 0, 0, 0.8);
+    animation: slideIn 0.4s ease-out;
+    z-index: 10002;
+}
+
+.tutorial-step-content h3 {
+    font-family: var(--font-headers);
+    color: var(--secondary-color);
+    font-size: 1.8em;
+    margin: 0 0 15px 0;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.tutorial-step-content p {
+    font-size: 1.2em;
+    line-height: 1.6;
+    margin: 0 0 20px 0;
+    color: #fff;
+}
+
+.tutorial-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.tutorial-pointer {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 4px solid var(--secondary-color);
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+    animation: pulse 1.5s ease-in-out infinite;
+    z-index: 10001;
+    pointer-events: none;
+}
+
+.tutorial-pointer::after {
+    content: '👆';
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2em;
+    animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(-10px);
+    }
+}
+
+.tutorial-highlight {
+    position: relative;
+    z-index: 10001 !important;
+    box-shadow: 0 0 0 4px var(--secondary-color), 0 0 30px rgba(255, 215, 0, 0.8) !important;
+    animation: highlightPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes highlightPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 4px var(--secondary-color), 0 0 30px rgba(255, 215, 0, 0.8);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px var(--secondary-color), 0 0 50px rgba(255, 215, 0, 1);
+    }
+}
+
+/* Responsividade do Tutorial Interativo */
+@media (max-width: 768px) {
+    .tutorial-box {
+        max-width: 90%;
+        padding: 20px;
+        left: 5% !important;
+        right: 5% !important;
+    }
+
+    .tutorial-step-content h3 {
+        font-size: 1.4em;
+    }
+
+    .tutorial-step-content p {
+        font-size: 1em;
+    }
+
+    .tutorial-pointer {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .tutorial-box {
+        padding: 15px;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .tutorial-step-content h3 {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+    }
+
+    .tutorial-step-content p {
+        font-size: 0.9em;
+        margin-bottom: 15px;
+    }
+}

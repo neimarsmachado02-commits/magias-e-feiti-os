@@ -15,11 +15,35 @@
         <canvas id="gameCanvas"></canvas>
 
         <div id="ui-layer">
-            <div id="auth-screen" class="screen active">
+            <!-- Tela de Capa Inicial -->
+            <div id="cover-screen" class="screen active">
+                <div class="cover-content">
+                    <h1 class="cover-title">Cozinha Mágica</h1>
+                    <p class="cover-subtitle">Uma Aventura Culinária em Hogwarts</p>
+                    <button id="enter-game-btn" class="magic-btn cover-btn">Entrar no Jogo ⚡</button>
+                </div>
+            </div>
+
+            <div id="auth-screen" class="screen hidden">
                 <div class="wizard-decor">🧙‍♂️</div>
                 <h1>Cozinha Mágica</h1>
                 <p>Identifique-se, Jovem Aprendiz!</p>
                 <div class="auth-form">
+                    <div class="avatar-selector">
+                        <p style="margin: 0 0 10px 0; font-size: 0.9em; color: var(--secondary-color);">Escolha seu
+                            Avatar:</p>
+                        <div class="avatar-grid">
+                            <div class="avatar-option" data-avatar="🧙‍♂️" title="Mago">🧙‍♂️</div>
+                            <div class="avatar-option" data-avatar="🧙‍♀️" title="Bruxa">🧙‍♀️</div>
+                            <div class="avatar-option" data-avatar="⚡" title="Harry Potter">⚡</div>
+                            <div class="avatar-option" data-avatar="🦁" title="Grifinória">🦁</div>
+                            <div class="avatar-option" data-avatar="🐍" title="Sonserina">🐍</div>
+                            <div class="avatar-option" data-avatar="🦅" title="Corvinal">🦅</div>
+                            <div class="avatar-option" data-avatar="🦡" title="Lufa-Lufa">🦡</div>
+                            <div class="avatar-option" data-avatar="🪄" title="Varinha">🪄</div>
+                        </div>
+                        <input type="hidden" id="selected-avatar" value="🧙‍♂️">
+                    </div>
                     <input type="text" id="auth-user" placeholder="Seu Nome Mágico" class="magic-input">
                     <input type="password" id="auth-pass" placeholder="Palavra-Passe" class="magic-input">
                     <div style="display: flex; gap: 10px; width: 100%;">
@@ -35,11 +59,52 @@
                 <h1>Cozinha Mágica</h1>
                 <p>Bem-vindo, <span id="welcome-user">Aprendiz</span>!</p>
                 <p>Encontre os ingredientes antes que o tempo acabe!</p>
+                <button id="tutorial-btn" class="magic-btn" style="margin-bottom: 10px;">📖 Como Jogar</button>
                 <button id="start-btn" class="magic-btn">Iniciar Poção</button>
+            </div>
+
+            <div id="tutorial-screen" class="screen hidden">
+                <h2>📖 Como Jogar</h2>
+                <div class="tutorial-content">
+                    <div class="tutorial-step">
+                        <div class="tutorial-icon">🎯</div>
+                        <h3>Objetivo</h3>
+                        <p>Encontre os ingredientes da receita mágica antes que o tempo acabe!</p>
+                    </div>
+
+                    <div class="tutorial-step">
+                        <div class="tutorial-icon">👆</div>
+                        <h3>Como Jogar</h3>
+                        <p>Clique ou toque nos ingredientes corretos que aparecem na tela.</p>
+                    </div>
+
+                    <div class="tutorial-step">
+                        <div class="tutorial-icon">✅</div>
+                        <h3>Acertos</h3>
+                        <p>Ingrediente certo = <span style="color: #4ade80;">+50 pontos</span> e <span
+                                style="color: #60a5fa;">+5 segundos</span></p>
+                    </div>
+
+                    <div class="tutorial-step">
+                        <div class="tutorial-icon">❌</div>
+                        <h3>Erros</h3>
+                        <p>Ingrediente errado = <span style="color: #f87171;">-5 segundos</span> e o mago vai reclamar!
+                        </p>
+                    </div>
+
+                    <div class="tutorial-step">
+                        <div class="tutorial-icon">🏆</div>
+                        <h3>Complete Receitas</h3>
+                        <p>Encontre todos os ingredientes para ganhar <span style="color: #fbbf24;">+200 pontos
+                                bônus</span>!</p>
+                    </div>
+                </div>
+                <button id="close-tutorial-btn" class="magic-btn">Entendi! Vamos Jogar! 🪄</button>
             </div>
 
             <div id="hud" class="screen hidden">
                 <div class="hud-item">
+                    <span id="player-avatar" style="font-size: 1.5em; margin-right: 5px;">🧙‍♂️</span>
                     <span>Mago:</span> <span id="hud-user">Aprendiz</span>
                     <button id="logout-btn" class="magic-btn"
                         style="padding: 2px 8px; font-size: 0.6em; margin-left: 10px; background: linear-gradient(45deg, #6d1a1a, #4a1a1a);">Sair</button>
@@ -63,6 +128,25 @@
                 <h2>Fim de Jogo!</h2>
                 <p>Pontuação Final: <span id="final-score">0</span></p>
                 <button id="restart-btn" class="magic-btn">Tentar Novamente</button>
+            </div>
+
+            <!-- Tutorial Interativo Overlay -->
+            <div id="interactive-tutorial" class="hidden">
+                <div class="tutorial-overlay"></div>
+                <div class="tutorial-box">
+                    <div class="tutorial-step-content">
+                        <h3 id="tutorial-step-title">Bem-vindo!</h3>
+                        <p id="tutorial-step-text">Vamos aprender a jogar!</p>
+                    </div>
+                    <div class="tutorial-controls">
+                        <button id="tutorial-skip" class="magic-btn"
+                            style="padding: 8px 15px; font-size: 0.9em; background: linear-gradient(45deg, #6d1a1a, #4a1a1a);">Pular
+                            Tutorial</button>
+                        <button id="tutorial-next" class="magic-btn"
+                            style="padding: 8px 20px; font-size: 0.9em;">Próximo →</button>
+                    </div>
+                </div>
+                <div class="tutorial-pointer"></div>
             </div>
         </div>
     </div>
