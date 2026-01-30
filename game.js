@@ -84,22 +84,22 @@ class Game {
 
         // Recipes Database
         this.recipes = [
-            { name: "Sopa de Legumes", ingredients: ["🥕", "🥔", "🧅", "🥦"], icon: "🍲" },
-            { name: "Salada Tropical", ingredients: ["🥬", "🍅", "🥥", "🥭"], icon: "🥗" },
-            { name: "Pizza Mágica", ingredients: ["🍞", "🍅", "🧀", "🍄"], icon: "🍕" },
-            { name: "Bolo de Chocolate", ingredients: ["🍫", "🥚", "🥛", "🌾"], icon: "🎂" },
-            { name: "Poção da Verdade", ingredients: ["🧪", "🌿", "💧", "🌙"], icon: "✨" },
-            { name: "Hambúrguer", ingredients: ["🍞", "🥩", "🧀", "🥬"], icon: "🍔" },
-            { name: "Poção de Invisibilidade", ingredients: ["🧪", "🌫️", "👻", "🔮"], icon: "👤" },
-            { name: "Elixir da Juventude", ingredients: ["💎", "🌸", "💧", "✨"], icon: "🧪" },
-            { name: "Banquete Real", ingredients: ["🍗", "🍷", "🥖", "🍇"], icon: "👑" },
-            { name: "Doce de Dragão", ingredients: ["🌶️", "🍬", "🍭", "🔥"], icon: "🐲" },
-            { name: "Sorvete Galático", ingredients: ["🍦", "🌌", "🌠", "🔮"], icon: "🌌" },
-            { name: "Sushi Encantado", ingredients: ["🍣", "🍙", "🦐", "🥢"], icon: "🍱" },
-            { name: "Café de Fada", ingredients: ["☕", "🦋", "🍯", "🥐"], icon: "🧚" },
-            { name: "Poção Explosiva", ingredients: ["🧪", "💣", "🎇", "💥"], icon: "🎆" },
-            { name: "Omelete de Fênix", ingredients: ["🥚", "🔥", "🌿", "🌶️"], icon: "🔥" },
-            { name: "Suco de Meteoro", ingredients: ["☄️", "🍊", "🍋", "🧊"], icon: "🍹" }
+            { name: "Sopa de Dumbledore", ingredients: ["🥕", "🥔", "🧅", "🥦"], icon: "🍲" },
+            { name: "Salada de Hermione", ingredients: ["🥬", "🍅", "🥥", "🥭"], icon: "🥗" },
+            { name: "Pizza de Hagrid", ingredients: ["🍞", "🍅", "🧀", "🍄"], icon: "🍕" },
+            { name: "Bolo da Molly Weasley", ingredients: ["🍫", "🥚", "🥛", "🌾"], icon: "🎂" },
+            { name: "Poção de Snape", ingredients: ["🧪", "🌿", "💧", "🌙"], icon: "✨" },
+            { name: "Hambúrguer do Harry", ingredients: ["🍞", "🥩", "🧀", "🥬"], icon: "🍔" },
+            { name: "Poção de Moody", ingredients: ["🧪", "🌫️", "👻", "🔮"], icon: "👤" },
+            { name: "Elixir de Nicolas Flamel", ingredients: ["💎", "🌸", "💧", "✨"], icon: "🧪" },
+            { name: "Banquete de Slughorn", ingredients: ["🍗", "🍷", "🥖", "🍇"], icon: "👑" },
+            { name: "Doce da Honeydukes", ingredients: ["🌶️", "🍬", "🍭", "🔥"], icon: "🐲" },
+            { name: "Sorvete de Luna Lovegood", ingredients: ["🍦", "🌌", "🌠", "🔮"], icon: "🌌" },
+            { name: "Sushi de Cho Chang", ingredients: ["🍣", "🍙", "🦐", "🥢"], icon: "🍱" },
+            { name: "Café da Professora McGonagall", ingredients: ["☕", "🦋", "🍯", "🥐"], icon: "🧚" },
+            { name: "Poção de Fred e George", ingredients: ["🧪", "💣", "🎇", "💥"], icon: "🎆" },
+            { name: "Omelete de Fawkes", ingredients: ["🥚", "🔥", "🌿", "🌶️"], icon: "🔥" },
+            { name: "Suco de Dobby", ingredients: ["☄️", "🍊", "🍋", "🧊"], icon: "🍹" }
         ];
 
         this.allIngredients = [
