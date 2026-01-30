@@ -144,13 +144,10 @@ class Game {
         // Audio State
         this.isSoundEnabled = true;
         this.loggedInUser = null;
-        const isLocal = window.location.hostname === 'localhost' ||
-            window.location.hostname === '127.0.0.1' ||
-            window.location.hostname.startsWith('192.168.') ||
-            window.location.hostname.startsWith('10.') ||
-            window.location.hostname.startsWith('172.');
-
-        this.apiBaseUrl = isLocal ? `http://${window.location.hostname}:3000` : `http://${window.location.hostname}:3000`; // Always use current hostname/IP
+        const isProduction = window.location.hostname.includes('netlify.app');
+        this.apiBaseUrl = isProduction
+            ? 'https://magias-e-feiti-os.onrender.com'
+            : `http://${window.location.hostname}:3000`;
 
         // Audio Setup
         this.music = new Audio();
