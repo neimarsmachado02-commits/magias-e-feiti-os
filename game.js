@@ -330,11 +330,15 @@ class Game {
         this.score = 0;
         this.timeLeft = 180; // More time as requested
         this.isGameOver = false;
+        this.isPlaying = true;
         this.foundIngredients = [];
 
         this.startScreen.classList.add('hidden');
         this.gameOverScreen.classList.add('hidden');
         this.hud.classList.remove('hidden');
+
+        // Iniciar nova receita
+        this.startNewRecipe();
 
         this.lastTime = performance.now();
 
