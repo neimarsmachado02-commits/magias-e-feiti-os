@@ -16,8 +16,8 @@ body {
     margin: 0;
     padding: 0;
     min-height: 100%;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    background-color: var(--bg-dark);
+    color: #ffffff;
     font-family: var(--font-main);
     display: flex;
     justify-content: center;
@@ -25,7 +25,10 @@ body {
     /* Mudado de center para o scroll começar do topo */
     overflow-x: hidden;
     overflow-y: auto;
-    background-image: radial-gradient(circle, #2a1a2a 0%, #0d0d0d 100%);
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('assets/background.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
 }
 
 #game-container {
@@ -55,11 +58,14 @@ canvas {
     justify-content: flex-end;
     /* Move elementos para baixo */
     align-items: center;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.2);
+    /* Quase transparente para ver as Casas */
     padding-bottom: 10vh;
     /* Garante que não fiquem colados no final */
     box-sizing: border-box;
     transition: opacity 0.3s ease;
+    backdrop-filter: blur(1px);
+    /* Desfoque mínimo */
 }
 
 .hidden {
@@ -78,9 +84,21 @@ h1,
 h2 {
     font-family: var(--font-headers);
     color: var(--secondary-color);
-    text-shadow: 0 0 10px var(--secondary-color);
-    margin-bottom: 20px;
-    font-size: 3em;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 2px 2px 10px #000;
+    margin-bottom: 30px;
+    font-size: 4em;
+    text-align: center;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 10px var(--secondary-color), 0 0 20px var(--secondary-color);
+    }
+
+    to {
+        text-shadow: 0 0 20px var(--secondary-color), 0 0 40px var(--accent-color);
+    }
 }
 
 p {
@@ -121,12 +139,14 @@ p {
     gap: 25px;
     width: 320px;
     padding: 35px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(13, 13, 13, 0.6);
+    /* Mais transparente */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border-radius: 20px;
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--secondary-color);
+    /* Borda mais forte para destacar no fundo fixo */
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 15px var(--accent-color);
 }
 
 .magic-input {
@@ -145,8 +165,10 @@ p {
 }
 
 .wizard-decor {
-    font-size: 5em;
-    margin-bottom: 10px;
+    font-size: 7em;
+    /* Aumentado para a capa */
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 20px var(--accent-color));
     animation: float 3s ease-in-out infinite;
 }
 
@@ -225,34 +247,41 @@ p {
     }
 
     #hud {
-        padding: 10px;
+        padding: 5px;
         flex-wrap: wrap;
         gap: 5px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent);
     }
 
     .hud-item {
-        font-size: 1em;
-        padding: 5px;
-        flex: 1 1 auto;
-        min-height: 35px;
-    }
-
-    /* Adicionado para permitir arrastar a tela */
-    .screen {
-        min-height: 115vh !important;
-        padding-bottom: 15vh !important;
-        justify-content: flex-end;
-    }
-
-    #game-container {
-        height: auto;
-        min-height: 115vh;
+        font-size: 0.9em;
+        padding: 4px;
+        flex: 1 1 30%;
+        min-height: 30px;
     }
 
     #target-item {
-        min-width: 100%;
-        order: -1;
-        margin-bottom: 5px;
+        position: absolute;
+        bottom: 20px;
+        /* Fixa a receita no rodapé */
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 90%;
+        margin-bottom: 0;
+        order: 10;
+        background: rgba(0, 0, 0, 0.85);
+        border: 2px solid var(--secondary-color);
+        box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Ajuste para não sobrepor o caldeirão */
+    .screen {
+        padding-bottom: 150px !important;
+        /* Espaço para o painel de ingredientes na base */
     }
 
     .wizard-decor {
@@ -279,5 +308,74 @@ p {
     #logout-btn {
         padding: 1px 4px !important;
         font-size: 0.5em !important;
+    }
+}
+
+/* Modo Paisagem (Horizontal) - Otimização Crítica */
+@media (max-height: 500px) and (orientation: landscape) {
+
+    /* HUD compacto na horizontal */
+    #hud {
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 3px 10px;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.7));
+    }
+
+    .hud-item {
+        font-size: 0.75em;
+        padding: 3px 6px;
+        min-height: 25px;
+        flex: 0 1 auto;
+        margin: 0 3px;
+    }
+
+    /* Receita compacta e lateral */
+    #target-item {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 60%;
+        max-width: 70%;
+        font-size: 0.85em;
+        padding: 5px 10px;
+    }
+
+    /* Telas de menu mais compactas */
+    .screen {
+        padding-bottom: 5vh !important;
+        justify-content: center;
+    }
+
+    h1,
+    h2 {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+
+    p {
+        font-size: 1em;
+        margin-bottom: 15px;
+    }
+
+    .auth-form {
+        width: 280px;
+        padding: 20px;
+        gap: 15px;
+    }
+
+    .magic-btn {
+        padding: 12px 30px;
+        font-size: 1.1em;
+    }
+
+    .wizard-decor {
+        font-size: 4em;
+    }
+
+    /* Aumentar área de jogo vertical */
+    #game-container {
+        min-height: 100vh;
     }
 }

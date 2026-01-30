@@ -40,7 +40,9 @@ class Game {
             y: this.height - 150,
             size: 100,
             emoji: "🧙‍♂️", // Placeholder emoji for wizard
-            animTime: 0 // For animation
+            animTime: 0, // For animation
+            jump: 0,
+            shake: 0
         };
 
         // Owl that flies across the screen
@@ -51,8 +53,20 @@ class Game {
             emoji: "🦉",
             size: 60,
             animTime: 0,
-            flapSpeed: 8 // wing flapping speed
+            flapSpeed: 8, // wing flapping speed
+            speech: "",
+            speechTime: 0
         };
+
+        this.owlPhrases = [
+            "Hoo-hoo! 🌙",
+            "Mensagem Real! 📜",
+            "Cuidado com as poções! 🧪",
+            "O tempo voa... ⏳",
+            "Magia Lunar! ✨",
+            "Procure bem! 👀",
+            "Hoo-hoo! 🦉"
+        ];
 
         // Harry Potter flying on broomstick
         this.harry = {
@@ -107,11 +121,21 @@ class Game {
             "Magia está no ar! 🌟",
             "Você é rápido! ⚡",
             "Hmm... delicioso! 😋",
-            "Preciso de mais! 🧙‍♂️",
+            "Ficando bom! 🧙‍♂️",
             "Fantástico! 🎩",
-            "Continue assim! 👍",
+            "Tudo pronto? 👍",
             "Que maravilha! 🌈",
-            "Excelente trabalho! 🏆"
+            "Excelente! 🏆"
+        ];
+
+        this.errorPhrases = [
+            "Isso não é sopa! 🤢",
+            "Eca! Que ingrediente é esse? 🤮",
+            "Cuidado! Vai explodir! 💥",
+            "Isso não pertence à poção! ❌",
+            "Você quer me envenenar? 💀",
+            "Errou feio, aprendiz! 🪄",
+            "Tire isso daqui! 🧤"
         ];
 
         // Assets
@@ -426,7 +450,8 @@ class Game {
     generateItemsForRecipe(recipe) {
         const items = [];
         const needed = [...recipe.ingredients];
-        const minDistance = 160; // Aumentado drasticamente para garantir separação total no mobile
+        // Distância proporcional à escala: garante que em telas menores o espaço seja relativo
+        const minDistance = 180 * this.scale;
 
         // Helper to check distance
         const isTooClose = (x, y) => {
@@ -442,7 +467,7 @@ class Game {
             do {
                 item = this.createItem(emoji, isTarget);
                 attempts++;
-            } while (isTooClose(item.x, item.y) && attempts < 50);
+            } while (isTooClose(item.x, item.y) && attempts < 100); // Aumentado tentativas para garantir separação
             return item;
         };
 
@@ -451,8 +476,8 @@ class Game {
             items.push(tryCreateItem(emoji, true));
         });
 
-        // Add distractors (total items = 15)
-        const totalItems = 15;
+        // Reduzir itens distratores no mobile para dar mais espaço
+        const totalItems = this.width < 600 ? 10 : 15;
         const distractorsNeeded = totalItems - needed.length;
 
         for (let i = 0; i < distractorsNeeded; i++) {
@@ -468,9 +493,15 @@ class Game {
     }
 
     createItem(emoji, isTarget) {
+        // Detectar modo paisagem
+        const isLandscape = this.width > this.height;
+
         return {
             x: 100 + Math.random() * (this.width - 200),
-            y: (this.height * 0.6) + Math.random() * (this.height * 0.3), // Foca na parte de baixo (60% a 90% da altura)
+            // Em paisagem, usar mais área vertical; em retrato, focar na metade inferior
+            y: isLandscape
+                ? (this.height * 0.3) + Math.random() * (this.height * 0.5) // 30% a 80% da altura
+                : (this.height * 0.5) + Math.random() * (this.height * 0.35), // 50% a 85% da altura
             size: 45 * this.scale, // Ligeiramente maior para facilitar o toque
             emoji: emoji,
             isTarget: isTarget,
@@ -505,6 +536,16 @@ class Game {
         if (this.owl.x > this.width + 100) {
             this.owl.x = -100;
             this.owl.y = 50 + Math.random() * (this.height / 2); // Random height in upper half
+            this.owl.speech = ""; // Limpa a fala ao resetar
+        }
+
+        // Sistema de fala da coruja
+        if (this.owl.speechTime > 0) {
+            this.owl.speechTime -= deltaTime;
+        } else if (Math.random() < 0.005 && this.owl.x > 100 && this.owl.x < this.width - 100) {
+            // Sorteia uma fala quando estiver visível no meio da tela
+            this.owl.speech = this.owlPhrases[Math.floor(Math.random() * this.owlPhrases.length)];
+            this.owl.speechTime = 2000;
         }
 
         // Update Flying Items
@@ -549,6 +590,7 @@ class Game {
 
             if (this.foundIngredients.length === this.currentRecipe.ingredients.length) {
                 this.score += 200;
+                this.customer.jump = 30; // Pula de alegria!
                 this.setWizardSpeech("Delicioso! Obrigado! 😋", 2000);
                 this.playSound('complete');
                 setTimeout(() => this.startNewRecipe(), 2000);
@@ -598,10 +640,17 @@ class Game {
         // Draw Wizard/Customer with floating animation
         this.ctx.save();
         const floatOffset = Math.sin(this.customer.animTime * 1.5) * 10; // Floating up and down
+
+        // Pulo e Vibração
+        if (this.customer.jump > 0) this.customer.jump *= 0.9; // Decalque do pulo
+        if (this.customer.shake > 0) this.customer.shake *= 0.9; // Decalque da vibração
+        const jumpOffset = -Math.abs(Math.sin(this.customer.animTime * 10) * this.customer.jump);
+        const shakeX = (Math.random() - 0.5) * this.customer.shake;
+
         const sway = Math.sin(this.customer.animTime * 2) * 0.08; // Gentle swaying
         const scale = 1 + Math.sin(this.customer.animTime * 2.5) * 0.05; // Slight breathing effect
 
-        this.ctx.translate(this.customer.x + 50, this.customer.y + 100 + floatOffset);
+        this.ctx.translate(this.customer.x + 50 + shakeX, this.customer.y + 100 + floatOffset + jumpOffset);
         this.ctx.rotate(sway);
         this.ctx.scale(scale, scale);
 
@@ -677,6 +726,28 @@ class Game {
         this.ctx.fillText(this.owl.emoji, 0, 0);
         this.ctx.filter = "none"; // Reset filter
         this.ctx.restore();
+
+        // Draw Owl Speech Bubble
+        if (this.owl.speechTime > 0) {
+            this.ctx.save();
+            this.ctx.font = "bold 16px 'MedievalSharp'";
+            this.ctx.textBaseline = "middle";
+            const oText = this.owl.speech;
+            const oTextW = this.ctx.measureText(oText).width;
+
+            const obx = this.owl.x + 30;
+            const oby = this.owl.y - 40;
+
+            this.ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+            this.ctx.beginPath();
+            this.ctx.roundRect(obx - 10, oby - 15, oTextW + 20, 30, 10);
+            this.ctx.fill();
+            this.ctx.stroke();
+
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText(oText, obx, oby);
+            this.ctx.restore();
+        }
 
         // Draw Cauldron with bobbing animation
         this.ctx.save();
@@ -808,7 +879,13 @@ class Game {
                     // Wrong!
                     this.timeLeft -= 5;
                     this.showFlyingText("-5s", item.x, item.y, "red");
-                    this.setWizardSpeech("Isso não! 🤢", 1000);
+
+                    this.customer.shake = 20; // Treme de raiva/nojo!
+
+                    // Mago fala uma frase de erro aleatória
+                    const randomError = this.errorPhrases[Math.floor(Math.random() * this.errorPhrases.length)];
+                    this.setWizardSpeech(randomError, 2000);
+
                     this.playSound('wrong');
                     item.shake = 15; // Visual feedback
                 }
